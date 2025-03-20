@@ -34,5 +34,6 @@
    -  Стабильная работа системы при одновременной работе нескольких пользователей.
 
 
-
+Разработка макета веб-приложения
+https://www.figma.com/design/MkkBhP6uKfFyk7EWScI4VD/Untitled?node-id=0-1&t=QxHjNxv2NGoEGUCy-1
 
