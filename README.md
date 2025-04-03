@@ -37,3 +37,5 @@
 Разработка макета веб-приложения
 https://www.figma.com/design/MkkBhP6uKfFyk7EWScI4VD/Untitled?node-id=0-1&t=QxHjNxv2NGoEGUCy-1
 
+Ссылка на pages
+https://tatana-t34.github.io/CRM_system_for_small_businesses/
