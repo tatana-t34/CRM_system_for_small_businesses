@@ -157,3 +157,68 @@ window.onclick = function(event) {
         closeNewTaskModal();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarBody = document.getElementById('calendar-body');
+    const currentMonthDisplay = document.getElementById('current-month');
+    const prevMonthButton = document.getElementById('prev-month');
+    const nextMonthButton = document.getElementById('next-month');
+
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
+
+    function generateCalendar(month, year) {
+        calendarBody.innerHTML = ''; 
+
+        const firstDayOfMonth = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+        const startingDay = firstDayOfMonth.getDay(); 
+
+        currentMonthDisplay.textContent = new Date(year, month).toLocaleDateString('default', { month: 'long', year: 'numeric' });
+
+        let date = 1;
+        for (let i = 0; i < 6; i++) {  
+            const row = document.createElement('tr');
+
+            for (let j = 0; j < 7; j++) {
+                const cell = document.createElement('td');
+                if (i === 0 && j < startingDay) {
+                } else if (date <= daysInMonth) {
+                    cell.textContent = date;
+                    date++;
+                }
+                row.appendChild(cell);
+            }
+
+            calendarBody.appendChild(row);
+
+            if (date > daysInMonth) {
+                break; 
+            }
+        }
+    }
+
+    function changeMonth(direction) {
+        if (direction === 'prev') {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+        } else {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+        }
+        generateCalendar(currentMonth, currentYear);
+    }
+
+    prevMonthButton.addEventListener('click', () => changeMonth('prev'));
+    nextMonthButton.addEventListener('click', () => changeMonth('next'));
+
+    generateCalendar(currentMonth, currentYear); // Initial calendar generation
+});
