@@ -1,9 +1,14 @@
+
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let completedTaskCount = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
     renderTasks();
-    updateCompletedCount(); // Initialize completed count on load
+    updateCompletedCount();
+    // Initialize calendar only if calendar tab is active on load (optional)
+    // if (document.getElementById('calendar').classList.contains('active')) {
+    //     initializeCalendar();
+    // }
 });
 
 function renderTasks() {
@@ -108,7 +113,7 @@ function saveNewTask() {
         phone: phone,
         address: address,
         description: description,
-        status: 'in-progress'
+        status: 'todo'  //  New tasks go to "В работе"
     };
 
     tasks.push(newTask);
@@ -144,6 +149,10 @@ function openTab(tabName) {
     }
     document.getElementById(tabName).classList.add("active");
     event.currentTarget.classList.add("active");
+
+    if (tabName === 'calendar') {
+        initializeCalendar(); // Initialize the calendar when the calendar tab is opened
+    }
 }
 
 function updateCompletedCount() {
@@ -158,7 +167,7 @@ window.onclick = function(event) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+function initializeCalendar() {
     const calendarBody = document.getElementById('calendar-body');
     const currentMonthDisplay = document.getElementById('current-month');
     const prevMonthButton = document.getElementById('prev-month');
@@ -169,22 +178,23 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentYear = currentDate.getFullYear();
 
     function generateCalendar(month, year) {
-        calendarBody.innerHTML = ''; 
+        calendarBody.innerHTML = '';
 
         const firstDayOfMonth = new Date(year, month, 1);
         const lastDayOfMonth = new Date(year, month + 1, 0);
         const daysInMonth = lastDayOfMonth.getDate();
-        const startingDay = firstDayOfMonth.getDay(); 
+        const startingDay = firstDayOfMonth.getDay();
 
         currentMonthDisplay.textContent = new Date(year, month).toLocaleDateString('default', { month: 'long', year: 'numeric' });
 
         let date = 1;
-        for (let i = 0; i < 6; i++) {  
+        for (let i = 0; i < 6; i++) {
             const row = document.createElement('tr');
 
             for (let j = 0; j < 7; j++) {
                 const cell = document.createElement('td');
                 if (i === 0 && j < startingDay) {
+                    // Empty cells before the first day of the month
                 } else if (date <= daysInMonth) {
                     cell.textContent = date;
                     date++;
@@ -195,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
             calendarBody.appendChild(row);
 
             if (date > daysInMonth) {
-                break; 
+                break; // Stop creating rows when all days are filled
             }
         }
     }
@@ -221,4 +231,4 @@ document.addEventListener('DOMContentLoaded', function() {
     nextMonthButton.addEventListener('click', () => changeMonth('next'));
 
     generateCalendar(currentMonth, currentYear); // Initial calendar generation
-});
+}
