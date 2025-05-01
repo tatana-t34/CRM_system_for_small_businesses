@@ -64,7 +64,7 @@ function drop(event, columnId) {
     if (draggedElement) {
         const taskStatus = columnId;
         updateTaskStatus(data, taskStatus);
-        event.target.querySelector('.task-container').appendChild(draggedElement);
+        // event.target.querySelector('.task-container').appendChild(draggedElement);
     }
 }
 
