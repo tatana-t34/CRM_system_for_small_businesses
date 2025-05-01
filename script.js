@@ -1,4 +1,3 @@
-
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let completedTaskCount = 0;
 
@@ -231,4 +230,46 @@ function initializeCalendar() {
     nextMonthButton.addEventListener('click', () => changeMonth('next'));
 
     generateCalendar(currentMonth, currentYear); // Initial calendar generation
+}
+function createTaskElement(task) {
+    const taskId = task.id;
+    const taskElement = document.createElement("div");
+    taskElement.id = taskId;
+    taskElement.className = "task";
+    taskElement.draggable = true;
+
+    //  Add click listener to open task details
+    taskElement.addEventListener("click", () => openTaskDetailsModal(task));
+
+    taskElement.innerHTML = `
+        ${task.name}<br>
+        <small>${task.description}</small>
+        <span class="delete-btn" onclick="deleteTask('${taskId}')"></span>`;
+    taskElement.addEventListener("dragstart", drag);
+    return taskElement;
+}
+
+
+function openTaskDetailsModal(task) {
+    document.getElementById("taskDetailsName").textContent = task.name;
+    document.getElementById("taskDetailsPhone").textContent = task.phone || 'Не указан'; // Handle missing data
+    document.getElementById("taskDetailsAddress").textContent = task.address || 'Не указан'; // Handle missing data
+    document.getElementById("taskDetailsDescription").textContent = task.description;
+    document.getElementById("taskDetailsModal").style.display = "block";
+}
+
+function closeTaskDetailsModal() {
+    document.getElementById("taskDetailsModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    const newTaskModal = document.getElementById("newTaskModal");
+    if (event.target == newTaskModal) {
+        closeNewTaskModal();
+    }
+
+    const taskDetailsModal = document.getElementById("taskDetailsModal");
+    if (event.target == taskDetailsModal) {
+        closeTaskDetailsModal();
+    }
 }
