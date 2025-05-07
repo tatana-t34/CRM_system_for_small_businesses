@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +10,6 @@
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-
 <body>
     <div class="app-container">
         <div class="sidebar">
@@ -31,7 +29,7 @@
                         <i class="fas fa-plus"></i> Новая заявка
                     </button>
                     <input type="text" id="search-input" placeholder="Search tasks..." oninput="searchTasks()">
-                    <span id="completed-count">Завершено: 0</span>
+                    <span id="completed-count"> Завершено: 0</span>
                 </div>
             </div>
 
@@ -67,13 +65,13 @@
                     <table class="calendar-grid">
                         <thead>
                             <tr>
-                                <th>Sun</th>
-                                <th>Mon</th>
-                                <th>Tue</th>
-                                <th>Wed</th>
-                                <th>Thu</th>
-                                <th>Fri</th>
-                                <th>Sat</th>
+                                <th>Вс</th>
+                                <th>Пн</th>
+                                <th>Вт</th>
+                                <th>Ср</th>
+                                <th>Чт</th>
+                                <th>Пт</th>
+                                <th>Сб</th>
                             </tr>
                         </thead>
                         <tbody id="calendar-body">
@@ -119,8 +117,16 @@
             <button id="deleteTaskButton" onclick="deleteTaskFromDetails()">Удалить</button>
         </div>
     </div>
+    <div id="taskListModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTaskListModal()">&times;</span>
+            <h2>Заявки на <span id="taskListDate"></span></h2>
+            <div id="taskListContainer">
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 
 </html>
-
