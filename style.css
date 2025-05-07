@@ -240,7 +240,8 @@ body {
 
 #newTaskForm input[type="text"],
 #newTaskForm input[type="tel"],
-#newTaskForm textarea {
+#newTaskForm textarea,
+#newTaskForm input[type="date"] {
     padding: 8px;
     margin-bottom: 8px;
     border: 1px solid #ccc;
@@ -288,7 +289,8 @@ body {
 
     #newTaskForm input[type="text"],
     #newTaskForm input[type="tel"],
-    #newTaskForm textarea {
+    #newTaskForm textarea,
+    #newTaskForm input[type="date"] {
         font-size: 14px;
     }
 
@@ -426,4 +428,18 @@ body {
 
 #taskDetailsModal p {
     margin-bottom: 5px;
+}
+
+#taskDetailsModal button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#taskDetailsModal button:hover {
+    background-color: #3e8e41;
 }
