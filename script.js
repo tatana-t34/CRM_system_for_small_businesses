@@ -1,13 +1,10 @@
-
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let completedTaskCount = 0;
 let currentTaskDetailsId = null; 
-
 document.addEventListener("DOMContentLoaded", function() {
     renderTasks();
     updateCompletedCount();
 });
-
 function renderTasks() {
     const columns = ['todo', 'in-progress', 'done'];
     columns.forEach(columnId => {
@@ -91,7 +88,7 @@ function saveNewTask() {
         address: address,
         description: description,
         departureDate: departureDate, 
-        status: 'todo' 
+        status: 'todo'  
     };
     tasks.push(newTask);
     updateLocalStorage();
@@ -103,7 +100,6 @@ function saveNewTask() {
 function searchTasks() {
     const searchTerm = document.getElementById("search-input").value.toLowerCase();
     const allTasks = document.querySelectorAll('.task');
-
     allTasks.forEach(task => {
         const taskText = task.textContent.toLowerCase();
         if (taskText.includes(searchTerm)) {
@@ -155,13 +151,10 @@ function initializeCalendar() {
         const lastDayOfMonth = new Date(year, month + 1, 0);
         const daysInMonth = lastDayOfMonth.getDate();
         const startingDay = firstDayOfMonth.getDay();
-
         currentMonthDisplay.textContent = new Date(year, month).toLocaleDateString('default', { month: 'long', year: 'numeric' });
-
         let date = 1;
         for (let i = 0; i < 6; i++) {
             const row = document.createElement('tr');
-
             for (let j = 0; j < 7; j++) {
                 const cell = document.createElement('td');
                 if (i === 0 && j < startingDay) {
@@ -170,7 +163,8 @@ function initializeCalendar() {
                     const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
                     const hasTasks = tasks.some(task => task.departureDate === fullDate);
                     if (hasTasks) {
-                        cell.classList.add('has-event'); 
+                        cell.classList.add('has-event');
+                        cell.addEventListener('click', () => openTaskListModal(fullDate));
                     }
                     date++;
                 }
@@ -200,10 +194,11 @@ function initializeCalendar() {
     }
     prevMonthButton.addEventListener('click', () => changeMonth('prev'));
     nextMonthButton.addEventListener('click', () => changeMonth('next'));
-    generateCalendar(currentMonth, currentYear); 
+    generateCalendar(currentMonth, currentYear);
 }
 function openTaskDetailsModal(task) {
     currentTaskDetailsId = task.id; 
+
     document.getElementById("taskDetailsName").textContent = task.name;
     document.getElementById("taskDetailsPhone").textContent = task.phone || 'Не указан';
     document.getElementById("taskDetailsAddress").textContent = task.address || 'Не указан';
@@ -213,7 +208,7 @@ function openTaskDetailsModal(task) {
 }
 function closeTaskDetailsModal() {
     document.getElementById("taskDetailsModal").style.display = "none";
-    currentTaskDetailsId = null; 
+    currentTaskDetailsId = null;
 }
 function deleteTaskFromDetails() {
     if (currentTaskDetailsId) {
@@ -226,6 +221,32 @@ function deleteTask(taskId) {
     updateLocalStorage();
     renderTasks();
 }
+function openTaskListModal(date) {
+    const taskList = tasks.filter(task => task.departureDate === date);
+    const taskListContainer = document.getElementById('taskListContainer');
+    const taskListDateDisplay = document.getElementById('taskListDate');
+    taskListContainer.innerHTML = ''; 
+    taskListDateDisplay.textContent = date;
+    if (taskList.length === 0) {
+        taskListContainer.textContent = 'Нет заявок на этот день.';
+    } else {
+        taskList.forEach(task => {
+            const taskDiv = document.createElement('div');
+            taskDiv.classList.add('task-list-item');
+            taskDiv.innerHTML = `
+                <b>${task.name}</b><br>
+                Телефон: ${task.phone || 'Не указан'}<br>
+                Адрес: ${task.address || 'Не указан'}<br>
+                Описание: ${task.description}
+            `;
+            taskListContainer.appendChild(taskDiv);
+        });
+    }
+    document.getElementById('taskListModal').style.display = 'block';
+}
+function closeTaskListModal() {
+    document.getElementById('taskListModal').style.display = 'none';
+}
 window.onclick = function(event) {
     const newTaskModal = document.getElementById("newTaskModal");
     if (event.target == newTaskModal) {
@@ -234,5 +255,9 @@ window.onclick = function(event) {
     const taskDetailsModal = document.getElementById("taskDetailsModal");
     if (event.target == taskDetailsModal) {
         closeTaskDetailsModal();
+    }
+     const taskListModal = document.getElementById("taskListModal");
+    if (event.target == taskListModal) {
+        closeTaskListModal();
     }
 }
