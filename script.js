@@ -1,7 +1,7 @@
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let completedTaskCount = 0;
-let currentTaskDetailsId = null; 
-document.addEventListener("DOMContentLoaded", function() {
+let currentTaskDetailsId = null;
+document.addEventListener("DOMContentLoaded", function () {
     renderTasks();
     updateCompletedCount();
 });
@@ -25,12 +25,12 @@ function createTaskElement(task) {
     taskElement.id = taskId;
     taskElement.className = "task";
     taskElement.draggable = true;
-    taskElement.addEventListener("click", () => openTaskDetailsModal(task));
     taskElement.innerHTML = `
         ${task.name}<br>
         <small>${task.description}</small>
         `;
     taskElement.addEventListener("dragstart", drag);
+    taskElement.addEventListener("click", () => openTaskDetailsModal(task)); // Open details on click
     return taskElement;
 }
 function allowDrop(event) {
@@ -76,7 +76,6 @@ function saveNewTask() {
     const address = document.getElementById("address").value;
     const description = document.getElementById("description").value;
     const departureDate = document.getElementById("departureDate").value;
-
     if (!name || !description) {
         alert("Name and description are required!");
         return;
@@ -87,8 +86,8 @@ function saveNewTask() {
         phone: phone,
         address: address,
         description: description,
-        departureDate: departureDate, 
-        status: 'todo'  
+        departureDate: departureDate,
+        status: 'todo'
     };
     tasks.push(newTask);
     updateLocalStorage();
@@ -120,19 +119,26 @@ function openTab(tabName) {
     }
     document.getElementById(tabName).classList.add("active");
     event.currentTarget.classList.add("active");
-
     if (tabName === 'calendar') {
-        initializeCalendar(); 
+        initializeCalendar();
     }
 }
 function updateCompletedCount() {
     completedTaskCount = tasks.filter(task => task.status === 'done').length;
-    document.getElementById("completed-count").textContent = `Completed: ${completedTaskCount}`;
+    document.getElementById("completed-count").textContent = `Завершено: ${completedTaskCount}`;
 }
-window.onclick = function(event) {
-    const modal = document.getElementById("newTaskModal");
-    if (event.target == modal) {
+window.onclick = function (event) {
+    const newTaskModal = document.getElementById("newTaskModal");
+    if (event.target == newTaskModal) {
         closeNewTaskModal();
+    }
+    const taskDetailsModal = document.getElementById("taskDetailsModal");
+    if (event.target == taskDetailsModal) {
+        closeTaskDetailsModal();
+    }
+    const taskListModal = document.getElementById("taskListModal");
+    if (event.target == taskListModal) {
+        closeTaskListModal();
     }
 }
 function initializeCalendar() {
@@ -140,11 +146,9 @@ function initializeCalendar() {
     const currentMonthDisplay = document.getElementById('current-month');
     const prevMonthButton = document.getElementById('prev-month');
     const nextMonthButton = document.getElementById('next-month');
-
     let currentDate = new Date();
     let currentMonth = currentDate.getMonth();
     let currentYear = currentDate.getFullYear();
-
     function generateCalendar(month, year) {
         calendarBody.innerHTML = '';
         const firstDayOfMonth = new Date(year, month, 1);
@@ -197,22 +201,50 @@ function initializeCalendar() {
     generateCalendar(currentMonth, currentYear);
 }
 function openTaskDetailsModal(task) {
-    currentTaskDetailsId = task.id; 
+    currentTaskDetailsId = task.id;
+    document.getElementById('editTaskId').value = task.id;
+    document.getElementById('editName').value = task.name;
+    document.getElementById('editPhone').value = task.phone || '';
+    document.getElementById('editAddress').value = task.address || '';
+    document.getElementById('editDepartureDate').value = task.departureDate || '';
+    document.getElementById('editDescription').value = task.description;
 
-    document.getElementById("taskDetailsName").textContent = task.name;
-    document.getElementById("taskDetailsPhone").textContent = task.phone || 'Не указан';
-    document.getElementById("taskDetailsAddress").textContent = task.address || 'Не указан';
-    document.getElementById("taskDetailsDepartureDate").textContent = task.departureDate || 'Не указана'; 
-    document.getElementById("taskDetailsDescription").textContent = task.description;
     document.getElementById("taskDetailsModal").style.display = "block";
 }
 function closeTaskDetailsModal() {
     document.getElementById("taskDetailsModal").style.display = "none";
     currentTaskDetailsId = null;
 }
+function saveEditedTask() {
+    const taskId = document.getElementById('editTaskId').value;
+    const name = document.getElementById('editName').value;
+    const phone = document.getElementById('editPhone').value;
+    const address = document.getElementById('editAddress').value;
+    const departureDate = document.getElementById('editDepartureDate').value;
+    const description = document.getElementById('editDescription').value;
+
+    tasks = tasks.map(task => {
+        if (task.id === taskId) {
+            return {
+                ...task,
+                name: name,
+                phone: phone,
+                address: address,
+                departureDate: departureDate,
+                description: description
+            };
+        }
+        return task;
+    });
+
+    updateLocalStorage();
+    renderTasks();
+    closeTaskDetailsModal();
+}
+
 function deleteTaskFromDetails() {
     if (currentTaskDetailsId) {
-        deleteTask(currentTaskDetailsId); 
+        deleteTask(currentTaskDetailsId);
         closeTaskDetailsModal();
     }
 }
@@ -225,10 +257,12 @@ function openTaskListModal(date) {
     const taskList = tasks.filter(task => task.departureDate === date);
     const taskListContainer = document.getElementById('taskListContainer');
     const taskListDateDisplay = document.getElementById('taskListDate');
-    taskListContainer.innerHTML = ''; 
+
+    taskListContainer.innerHTML = ''; // Clear previous list
     taskListDateDisplay.textContent = date;
+
     if (taskList.length === 0) {
-        taskListContainer.textContent = 'Нет заявок на этот день.';
+        taskListContainer.textContent = 'Нет задач на этот день.';
     } else {
         taskList.forEach(task => {
             const taskDiv = document.createElement('div');
@@ -246,18 +280,4 @@ function openTaskListModal(date) {
 }
 function closeTaskListModal() {
     document.getElementById('taskListModal').style.display = 'none';
-}
-window.onclick = function(event) {
-    const newTaskModal = document.getElementById("newTaskModal");
-    if (event.target == newTaskModal) {
-        closeNewTaskModal();
-    }
-    const taskDetailsModal = document.getElementById("taskDetailsModal");
-    if (event.target == taskDetailsModal) {
-        closeTaskDetailsModal();
-    }
-     const taskListModal = document.getElementById("taskListModal");
-    if (event.target == taskListModal) {
-        closeTaskListModal();
-    }
 }
