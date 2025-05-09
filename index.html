@@ -28,11 +28,10 @@
                     <button class="new-task-button" onclick="openNewTaskModal()">
                         <i class="fas fa-plus"></i> Новая заявка
                     </button>
-                    <input type="text" id="search-input" placeholder="Search tasks..." oninput="searchTasks()">
+                    <input type="text" id="search-input" placeholder="Поиск задач..." oninput="searchTasks()">
                     <span id="completed-count"> Завершено: 0</span>
                 </div>
             </div>
-
             <div id="kanban" class="tab-content active">
                 <div class="board">
                     <div class="column" id="todo" ondrop="drop(event, 'todo')" ondragover="allowDrop(event)">
@@ -40,7 +39,6 @@
                         <hr>
                         <div class="task-container"></div>
                     </div>
-
                     <div class="column" id="in-progress" ondrop="drop(event, 'in-progress')"
                         ondragover="allowDrop(event)">
                         <h2>Отменено</h2>
@@ -54,7 +52,6 @@
                     </div>
                 </div>
             </div>
-
             <div id="calendar" class="tab-content">
                 <div class="calendar-container">
                     <div class="calendar-header">
@@ -80,7 +77,6 @@
                 </div>
             </div>
         </div>
-
         <div id="newTaskModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeNewTaskModal()">&times;</span>
@@ -88,33 +84,40 @@
                 <form id="newTaskForm">
                     <label for="name">Имя</label>
                     <input type="text" id="name" name="name" required><br><br>
-
                     <label for="phone">Телефон</label>
                     <input type="tel" id="phone" name="phone"><br><br>
-
                     <label for="address">Адресс</label>
                     <input type="text" id="address" name="address"><br><br>
-
                     <label for="departureDate">Предполагаемая дата выезда</label>
                     <input type="date" id="departureDate" name="departureDate"><br><br>
-
                     <label for="description">Описание</label>
                     <textarea id="description" name="description" rows="4" required></textarea><br><br>
-
                     <button type="button" onclick="saveNewTask()">Сохранить</button>
                 </form>
             </div>
         </div>
     </div>
-    <div id="taskDetailsModal" class="modal">
+     <div id="taskDetailsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeTaskDetailsModal()">&times;</span>
-            <h2 id="taskDetailsName"></h2>
-            <p><b>Телефон:</b> <span id="taskDetailsPhone"></span></p>
-            <p><b>Адрес:</b> <span id="taskDetailsAddress"></span></p>
-            <p><b>Дата выезда:</b> <span id="taskDetailsDepartureDate"></span></p>
-            <p><b>Описание:</b> <span id="taskDetailsDescription"></span></p>
-            <button id="deleteTaskButton" onclick="deleteTaskFromDetails()">Удалить</button>
+            <h2>Детали заявки</h2>
+            <form id="editTaskForm">
+                <input type="hidden" id="editTaskId">
+                <label for="editName">Имя:</label>
+                <input type="text" id="editName" name="editName" required><br><br>
+                <label for="editPhone">Телефон:</label>
+                <input type="tel" id="editPhone" name="editPhone"><br><br>
+                <label for="editAddress">Адрес:</label>
+                <input type="text" id="editAddress" name="editAddress"><br><br>
+                <label for="editDepartureDate">Дата выезда:</label>
+                <input type="date" id="editDepartureDate" name="editDepartureDate"><br><br>
+                <label for="editDescription">Описание:</label>
+                <textarea id="editDescription" name="editDescription" rows="4" required></textarea><br><br>
+                <div class="modal-buttons">
+                  <button type="button" onclick="saveEditedTask()">Сохранить</button>
+                  <button type="button" id="deleteTaskButton" onclick="deleteTaskFromDetails()">Удалить</button>
+                </div>
+            </form>
         </div>
     </div>
     <div id="taskListModal" class="modal">
@@ -125,8 +128,7 @@
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
-
 </html>
+
