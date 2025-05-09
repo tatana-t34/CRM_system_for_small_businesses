@@ -69,17 +69,71 @@ function openNewTaskModal() {
 }
 function closeNewTaskModal() {
     document.getElementById("newTaskModal").style.display = "none";
+    resetValidation('newTaskForm');
+}
+function resetValidation(formId) {
+    const form = document.getElementById(formId);
+    const errorMessages = form.querySelectorAll('.error-message');
+    errorMessages.forEach(error => {
+        error.textContent = '';
+    });
+    const requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+        field.classList.remove('invalid');
+    });
+}
+function validateForm(formId) {
+    const form = document.getElementById(formId);
+    let isValid = true;
+    const requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('invalid');
+            const fieldId = field.id;
+            const errorId = fieldId + '-error';
+            const errorMessageElement = document.getElementById(errorId);
+            if (errorMessageElement) {
+                errorMessageElement.textContent = 'Это поле обязательно для заполнения.';
+            }
+        } else {
+            field.classList.remove('invalid');
+            const fieldId = field.id;
+            const errorId = fieldId + '-error';
+            const errorMessageElement = document.getElementById(errorId);
+             if (errorMessageElement) {
+                errorMessageElement.textContent = '';
+            }
+        }
+    });
+
+    return isValid;
+}
+function showSuccessAlert(message) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Успех!',
+        text: message,
+        timer: 1500,
+        showConfirmButton: false
+    });
+}
+function showErrorAlert(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Ошибка!',
+        text: message,
+    });
 }
 function saveNewTask() {
+    if (!validateForm('newTaskForm')) {
+        return;
+    }
     const name = document.getElementById("name").value;
     const phone = document.getElementById("phone").value;
     const address = document.getElementById("address").value;
     const description = document.getElementById("description").value;
     const departureDate = document.getElementById("departureDate").value;
-    if (!name || !description) {
-        alert("Name and description are required!");
-        return;
-    }
     const newTask = {
         id: "task-" + Date.now(),
         name: name,
@@ -93,7 +147,7 @@ function saveNewTask() {
     updateLocalStorage();
     renderTasks();
     closeNewTaskModal();
-
+    showSuccessAlert('Новая задача успешно создана!');
     document.getElementById("newTaskForm").reset();
 }
 function searchTasks() {
@@ -119,6 +173,7 @@ function openTab(tabName) {
     }
     document.getElementById(tabName).classList.add("active");
     event.currentTarget.classList.add("active");
+
     if (tabName === 'calendar') {
         initializeCalendar();
     }
@@ -162,6 +217,7 @@ function initializeCalendar() {
             for (let j = 0; j < 7; j++) {
                 const cell = document.createElement('td');
                 if (i === 0 && j < startingDay) {
+                    // Empty cells before the first day of the month
                 } else if (date <= daysInMonth) {
                     cell.textContent = date;
                     const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
@@ -170,13 +226,14 @@ function initializeCalendar() {
                         cell.classList.add('has-event');
                         cell.addEventListener('click', () => openTaskListModal(fullDate));
                     }
+
                     date++;
                 }
                 row.appendChild(cell);
             }
             calendarBody.appendChild(row);
             if (date > daysInMonth) {
-                break; 
+                break; // Stop generating rows if all days are filled
             }
         }
     }
@@ -200,6 +257,7 @@ function initializeCalendar() {
     nextMonthButton.addEventListener('click', () => changeMonth('next'));
     generateCalendar(currentMonth, currentYear);
 }
+// Task Details Modal Functions
 function openTaskDetailsModal(task) {
     currentTaskDetailsId = task.id;
     document.getElementById('editTaskId').value = task.id;
@@ -208,45 +266,73 @@ function openTaskDetailsModal(task) {
     document.getElementById('editAddress').value = task.address || '';
     document.getElementById('editDepartureDate').value = task.departureDate || '';
     document.getElementById('editDescription').value = task.description;
-
     document.getElementById("taskDetailsModal").style.display = "block";
 }
 function closeTaskDetailsModal() {
     document.getElementById("taskDetailsModal").style.display = "none";
     currentTaskDetailsId = null;
+    resetValidation('editTaskForm');
 }
 function saveEditedTask() {
     const taskId = document.getElementById('editTaskId').value;
+     if (!validateForm('editTaskForm')) {
+        return;
+    }
     const name = document.getElementById('editName').value;
     const phone = document.getElementById('editPhone').value;
     const address = document.getElementById('editAddress').value;
     const departureDate = document.getElementById('editDepartureDate').value;
     const description = document.getElementById('editDescription').value;
-
-    tasks = tasks.map(task => {
-        if (task.id === taskId) {
-            return {
-                ...task,
-                name: name,
-                phone: phone,
-                address: address,
-                departureDate: departureDate,
-                description: description
-            };
+    Swal.fire({
+        title: 'Вы уверены?',
+        text: "Вы хотите сохранить изменения в этой задаче?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Да, сохранить!',
+        cancelButtonText: 'Отмена'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = tasks.map(task => {
+                if (task.id === taskId) {
+                    return {
+                        ...task,
+                        name: name,
+                        phone: phone,
+                        address: address,
+                        departureDate: departureDate,
+                        description: description
+                    };
+                }
+                return task;
+            });
+            updateLocalStorage();
+            renderTasks();
+            closeTaskDetailsModal();
+            showSuccessAlert('Задача успешно обновлена!');
         }
-        return task;
     });
-
-    updateLocalStorage();
-    renderTasks();
-    closeTaskDetailsModal();
 }
-
 function deleteTaskFromDetails() {
-    if (currentTaskDetailsId) {
-        deleteTask(currentTaskDetailsId);
-        closeTaskDetailsModal();
-    }
+    Swal.fire({
+        title: 'Вы уверены?',
+        text: "Вы действительно хотите удалить эту задачу?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Да, удалить!',
+        cancelButtonText: 'Отмена'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (currentTaskDetailsId) {
+                deleteTask(currentTaskDetailsId);
+                closeTaskDetailsModal();
+                showSuccessAlert('Задача успешно удалена!');
+            }
+        }
+    });
 }
 function deleteTask(taskId) {
     tasks = tasks.filter(task => task.id !== taskId);
@@ -276,8 +362,10 @@ function openTaskListModal(date) {
             taskListContainer.appendChild(taskDiv);
         });
     }
+
     document.getElementById('taskListModal').style.display = 'block';
 }
+
 function closeTaskListModal() {
     document.getElementById('taskListModal').style.display = 'none';
 }
