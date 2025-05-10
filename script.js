@@ -217,7 +217,6 @@ function initializeCalendar() {
             for (let j = 0; j < 7; j++) {
                 const cell = document.createElement('td');
                 if (i === 0 && j < startingDay) {
-                    // Empty cells before the first day of the month
                 } else if (date <= daysInMonth) {
                     cell.textContent = date;
                     const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
@@ -233,7 +232,7 @@ function initializeCalendar() {
             }
             calendarBody.appendChild(row);
             if (date > daysInMonth) {
-                break; // Stop generating rows if all days are filled
+                break; 
             }
         }
     }
@@ -257,7 +256,6 @@ function initializeCalendar() {
     nextMonthButton.addEventListener('click', () => changeMonth('next'));
     generateCalendar(currentMonth, currentYear);
 }
-// Task Details Modal Functions
 function openTaskDetailsModal(task) {
     currentTaskDetailsId = task.id;
     document.getElementById('editTaskId').value = task.id;
@@ -284,13 +282,12 @@ function saveEditedTask() {
     const departureDate = document.getElementById('editDepartureDate').value;
     const description = document.getElementById('editDescription').value;
     Swal.fire({
-        title: 'Вы уверены?',
         text: "Вы хотите сохранить изменения в этой задаче?",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
+        confirmButtonColor: '#76a05e',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Да, сохранить!',
+        confirmButtonText: 'Сохранить',
         cancelButtonText: 'Отмена'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -316,13 +313,12 @@ function saveEditedTask() {
 }
 function deleteTaskFromDetails() {
     Swal.fire({
-        title: 'Вы уверены?',
         text: "Вы действительно хотите удалить эту задачу?",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Да, удалить!',
+        cancelButtonColor: '#76a05e',
+        confirmButtonText: 'Удалить',
         cancelButtonText: 'Отмена'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -344,7 +340,7 @@ function openTaskListModal(date) {
     const taskListContainer = document.getElementById('taskListContainer');
     const taskListDateDisplay = document.getElementById('taskListDate');
 
-    taskListContainer.innerHTML = ''; // Clear previous list
+    taskListContainer.innerHTML = ''; 
     taskListDateDisplay.textContent = date;
 
     if (taskList.length === 0) {
