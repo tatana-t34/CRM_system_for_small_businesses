@@ -27,7 +27,7 @@ function createTaskElement(task) {
     taskElement.className = "task";
     taskElement.draggable = true;
     taskElement.innerHTML = `
-        ${task.phone}<br>
+        ${task.name}<br>
         <small>${task.description}</small>
         `;
     taskElement.addEventListener("dragstart", drag);
@@ -124,6 +124,23 @@ function validateForm(formId) {
             errorMessageElement.textContent = '';
         }
     }
+    const nameField = document.getElementById('name');
+    if (nameField && !nameField.value.trim()) {
+        isValid = false;
+        nameField.classList.add('invalid');
+        const errorId = 'name-error';
+        const errorMessageElement = document.getElementById(errorId);
+        if (errorMessageElement) {
+            errorMessageElement.textContent = 'Это поле обязательно для заполнения.';
+        }
+    } else if (nameField) {
+        nameField.classList.remove('invalid');
+        const errorId = 'name-error';
+        const errorMessageElement = document.getElementById(errorId);
+        if (errorMessageElement) {
+            errorMessageElement.textContent = '';
+        }
+    }
     return isValid;
 }
 function validatePhoneNumber(phoneNumber) {
@@ -150,12 +167,15 @@ function saveNewTask() {
     if (!validateForm('newTaskForm')) {
         return;
     }
+    const name = document.getElementById("name").value; 
     const phone = document.getElementById("phone").value;
     const address = document.getElementById("address").value;
     const description = document.getElementById("description").value;
     const departureDate = document.getElementById("departureDate").value;
+
     const newTask = {
         id: "task-" + Date.now(),
+        name: name, 
         phone: phone,
         address: address,
         description: description,
@@ -168,6 +188,48 @@ function saveNewTask() {
     closeNewTaskModal();
     showSuccessAlert('Новая задача успешно создана!');
     document.getElementById("newTaskForm").reset();
+}
+function saveEditedTask() {
+    const taskId = document.getElementById('editTaskId').value;
+    if (!validateForm('editTaskForm')) {
+        return;
+    }
+    const name = document.getElementById('editName').value; 
+    const phone = document.getElementById('editPhone').value;
+    const address = document.getElementById('editAddress').value;
+    const departureDate = document.getElementById('editDepartureDate').value;
+    const description = document.getElementById('editDescription').value;
+
+    Swal.fire({
+        title: 'Вы уверены?',
+        text: "Вы хотите сохранить изменения в этой задаче?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Cохранить',
+        cancelButtonText: 'Отмена'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = tasks.map(task => {
+                if (task.id === taskId) {
+                    return {
+                        ...task,
+                        name: name, 
+                        phone: phone,
+                        address: address,
+                        departureDate: departureDate,
+                        description: description
+                    };
+                }
+                return task;
+            });
+            updateLocalStorage();
+            renderTasks();
+            closeTaskDetailsModal();
+            showSuccessAlert('Задача успешно обновлена!');
+        }
+    });
 }
 function searchTasks() {
     const searchTerm = document.getElementById("search-input").value.toLowerCase();
@@ -276,12 +338,14 @@ function initializeCalendar() {
 function openTaskDetailsModal(task) {
     currentTaskDetailsId = task.id;
     document.getElementById('editTaskId').value = task.id;
+    document.getElementById('editName').value = task.name;
     document.getElementById('editPhone').value = task.phone || '';
     document.getElementById('editAddress').value = task.address || '';
     document.getElementById('editDepartureDate').value = task.departureDate || '';
     document.getElementById('editDescription').value = task.description;
     document.getElementById("taskDetailsModal").style.display = "block";
 }
+
 function closeTaskDetailsModal() {
     document.getElementById("taskDetailsModal").style.display = "none";
     currentTaskDetailsId = null;
@@ -364,7 +428,8 @@ function openTaskListModal(date) {
             const taskDiv = document.createElement('div');
             taskDiv.classList.add('task-list-item');
             taskDiv.innerHTML = `
-                <b>${task.phone}</b><br>
+                <b>${task.name}</b><br>
+                Телефон: ${task.phone || 'Не указан'}<br>
                 Адрес: ${task.address || 'Не указан'}<br>
                 Описание: ${task.description}
             `;
