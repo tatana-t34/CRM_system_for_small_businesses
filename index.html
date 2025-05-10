@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Include SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
 </head>
 <body>
@@ -34,7 +33,6 @@
                     <span id="completed-count"> Завершено: 0</span>
                 </div>
             </div>
-
             <div id="kanban" class="tab-content active">
                 <div class="board">
                     <div class="column" id="todo" ondrop="drop(event, 'todo')" ondragover="allowDrop(event)">
@@ -42,7 +40,6 @@
                         <hr>
                         <div class="task-container"></div>
                     </div>
-
                     <div class="column" id="in-progress" ondrop="drop(event, 'in-progress')"
                         ondragover="allowDrop(event)">
                         <h2>Отменено</h2>
@@ -56,7 +53,6 @@
                     </div>
                 </div>
             </div>
-
             <div id="calendar" class="tab-content">
                 <div class="calendar-container">
                     <div class="calendar-header">
@@ -82,93 +78,71 @@
                 </div>
             </div>
         </div>
-
         <div id="newTaskModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeNewTaskModal()">&times;</span>
                 <h2>Создать новую заявку</h2>
                 <form id="newTaskForm">
                     <div class="form-group">
-                        <label for="name">Имя <span class="required">*</span></label>
-                        <input type="text" id="name" name="name" required>
-                        <div class="error-message" id="name-error"></div>
+                        <label for="phone">Телефон <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="+7(___)___-__-__" required>
+                        <div class="error-message" id="phone-error"></div>
                     </div>
-
                     <div class="form-group">
-                        <label for="phone">Телефон</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="address">Адресс</label>
+                        <label for="address">Адрес</label>
                         <input type="text" id="address" name="address">
                     </div>
-
                     <div class="form-group">
                         <label for="departureDate">Предполагаемая дата выезда</label>
                         <input type="date" id="departureDate" name="departureDate">
                     </div>
-
                     <div class="form-group">
                         <label for="description">Описание <span class="required">*</span></label>
                         <textarea id="description" name="description" rows="4" required></textarea>
                         <div class="error-message" id="description-error"></div>
                     </div>
-
                     <button type="button" onclick="saveNewTask()">Сохранить</button>
                 </form>
             </div>
         </div>
-    </div>
-
-     <!-- Task Details Modal -->
-     <div id="taskDetailsModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeTaskDetailsModal()">&times;</span>
-            <h2>Детали заявки</h2>
-            <form id="editTaskForm">
-                <input type="hidden" id="editTaskId">
-
-                <div class="form-group">
-                    <label for="editName">Имя: <span class="required">*</span></label>
-                    <input type="text" id="editName" name="editName" required>
-                    <div class="error-message" id="editName-error"></div>
-                </div>
-
-                <div class="form-group">
-                    <labelfor="editPhone">Телефон:</label>
-                    <input type="tel" id="editPhone" name="editPhone">
-                </div>
-
-                <div class="form-group">
-                    <label for="editAddress">Адрес:</label>
-                    <input type="text" id="editAddress" name="editAddress">
-                </div>
-
-                <div class="form-group">
-                    <label for="editDepartureDate">Дата выезда:</label>
-                    <input type="date" id="editDepartureDate" name="editDepartureDate">
-                </div>
-
-                <div class="form-group">
-                    <label for="editDescription">Описание: <span class="required">*</span></label>
-                    <textarea id="editDescription" name="editDescription" rows="4" required></textarea>
-                    <div class="error-message" id="editDescription-error"></div>
-                </div>
-
-                <div class="modal-buttons">
-                  <button type="button" onclick="saveEditedTask()">Сохранить</button>
-                  <button type="button" id="deleteTaskButton" onclick="deleteTaskFromDetails()">Удалить</button>
-                </div>
-            </form>
+        <!-- Task Details Modal -->
+        <div id="taskDetailsModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeTaskDetailsModal()">&times;</span>
+                <h2>Детали заявки</h2>
+                <form id="editTaskForm">
+                    <input type="hidden" id="editTaskId">
+                    <div class="form-group">
+                        <label for="editPhone">Телефон: <span class="required">*</span></label>
+                        <input type="tel" id="editPhone" name="editPhone" placeholder="+7(___)___-__-__" required>
+                        <div class="error-message" id="editPhone-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Адрес:</label>
+                        <input type="text" id="editAddress" name="editAddress">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDepartureDate">Дата выезда:</label>
+                        <input type="date" id="editDepartureDate" name="editDepartureDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">Описание: <span class="required">*</span></label>
+                        <textarea id="editDescription" name="editDescription" rows="4" required></textarea>
+                        <div class="error-message" id="editDescription-error"></div>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" id="deleteTaskButton" onclick="deleteTaskFromDetails()">Удалить</button>
+                        <button type="button" onclick="saveEditedTask()" class="save-button">Сохранить</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
-
-    <div id="taskListModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeTaskListModal()">&times;</span>
-            <h2>Заявки на <span id="taskListDate"></span></h2>
-            <div id="taskListContainer">
+        <div id="taskListModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeTaskListModal()">&times;</span>
+                <h2>Заявки на <span id="taskListDate"></span></h2>
+                <div id="taskListContainer">
+                </div>
             </div>
         </div>
     </div>
