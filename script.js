@@ -4,7 +4,6 @@ let currentTaskDetailsId = null;
 document.addEventListener("DOMContentLoaded", function () {
     renderTasks();
     updateCompletedCount();
-    initializePhoneMask();
 });
 function renderTasks() {
     const columns = ['todo', 'in-progress', 'done'];
@@ -102,50 +101,13 @@ function validateForm(formId) {
             const fieldId = field.id;
             const errorId = fieldId + '-error';
             const errorMessageElement = document.getElementById(errorId);
-            if (errorMessageElement) {
+             if (errorMessageElement) {
                 errorMessageElement.textContent = '';
             }
         }
     });
-    const phoneField = document.getElementById('phone');
-    if (phoneField && !validatePhoneNumber(phoneField.value)) {
-        isValid = false;
-        phoneField.classList.add('invalid');
-        const errorId = 'phone-error';
-        const errorMessageElement = document.getElementById(errorId);
-        if (errorMessageElement) {
-            errorMessageElement.textContent = 'Введите номер телефона в формате +7(___)___-__-__';
-        }
-    } else if (phoneField) {
-        phoneField.classList.remove('invalid');
-        const errorId = 'phone-error';
-        const errorMessageElement = document.getElementById(errorId);
-        if (errorMessageElement) {
-            errorMessageElement.textContent = '';
-        }
-    }
-    const nameField = document.getElementById('name');
-    if (nameField && !nameField.value.trim()) {
-        isValid = false;
-        nameField.classList.add('invalid');
-        const errorId = 'name-error';
-        const errorMessageElement = document.getElementById(errorId);
-        if (errorMessageElement) {
-            errorMessageElement.textContent = 'Это поле обязательно для заполнения.';
-        }
-    } else if (nameField) {
-        nameField.classList.remove('invalid');
-        const errorId = 'name-error';
-        const errorMessageElement = document.getElementById(errorId);
-        if (errorMessageElement) {
-            errorMessageElement.textContent = '';
-        }
-    }
+
     return isValid;
-}
-function validatePhoneNumber(phoneNumber) {
-    const phoneRegex = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/;
-    return phoneRegex.test(phoneNumber);
 }
 function showSuccessAlert(message) {
     Swal.fire({
@@ -172,7 +134,6 @@ function saveNewTask() {
     const address = document.getElementById("address").value;
     const description = document.getElementById("description").value;
     const departureDate = document.getElementById("departureDate").value;
-
     const newTask = {
         id: "task-" + Date.now(),
         name: name,
@@ -212,6 +173,7 @@ function openTab(tabName) {
     }
     document.getElementById(tabName).classList.add("active");
     event.currentTarget.classList.add("active");
+
     if (tabName === 'calendar') {
         initializeCalendar();
     }
@@ -255,6 +217,7 @@ function initializeCalendar() {
             for (let j = 0; j < 7; j++) {
                 const cell = document.createElement('td');
                 if (i === 0 && j < startingDay) {
+                    // Empty cells before the first day of the month
                 } else if (date <= daysInMonth) {
                     cell.textContent = date;
                     const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
@@ -263,13 +226,14 @@ function initializeCalendar() {
                         cell.classList.add('has-event');
                         cell.addEventListener('click', () => openTaskListModal(fullDate));
                     }
+
                     date++;
                 }
                 row.appendChild(cell);
             }
             calendarBody.appendChild(row);
             if (date > daysInMonth) {
-                break;
+                break; // Stop generating rows if all days are filled
             }
         }
     }
@@ -293,6 +257,7 @@ function initializeCalendar() {
     nextMonthButton.addEventListener('click', () => changeMonth('next'));
     generateCalendar(currentMonth, currentYear);
 }
+// Task Details Modal Functions
 function openTaskDetailsModal(task) {
     currentTaskDetailsId = task.id;
     document.getElementById('editTaskId').value = task.id;
@@ -303,11 +268,51 @@ function openTaskDetailsModal(task) {
     document.getElementById('editDescription').value = task.description;
     document.getElementById("taskDetailsModal").style.display = "block";
 }
-
 function closeTaskDetailsModal() {
     document.getElementById("taskDetailsModal").style.display = "none";
     currentTaskDetailsId = null;
     resetValidation('editTaskForm');
+}
+function saveEditedTask() {
+    const taskId = document.getElementById('editTaskId').value;
+     if (!validateForm('editTaskForm')) {
+        return;
+    }
+    const name = document.getElementById('editName').value;
+    const phone = document.getElementById('editPhone').value;
+    const address = document.getElementById('editAddress').value;
+    const departureDate = document.getElementById('editDepartureDate').value;
+    const description = document.getElementById('editDescription').value;
+    Swal.fire({
+        title: 'Вы уверены?',
+        text: "Вы хотите сохранить изменения в этой задаче?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Да, сохранить!',
+        cancelButtonText: 'Отмена'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = tasks.map(task => {
+                if (task.id === taskId) {
+                    return {
+                        ...task,
+                        name: name,
+                        phone: phone,
+                        address: address,
+                        departureDate: departureDate,
+                        description: description
+                    };
+                }
+                return task;
+            });
+            updateLocalStorage();
+            renderTasks();
+            closeTaskDetailsModal();
+            showSuccessAlert('Задача успешно обновлена!');
+        }
+    });
 }
 function deleteTaskFromDetails() {
     Swal.fire({
@@ -317,7 +322,7 @@ function deleteTaskFromDetails() {
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Удалить',
+        confirmButtonText: 'Да, удалить!',
         cancelButtonText: 'Отмена'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -338,8 +343,10 @@ function openTaskListModal(date) {
     const taskList = tasks.filter(task => task.departureDate === date);
     const taskListContainer = document.getElementById('taskListContainer');
     const taskListDateDisplay = document.getElementById('taskListDate');
-    taskListContainer.innerHTML = '';
+
+    taskListContainer.innerHTML = ''; // Clear previous list
     taskListDateDisplay.textContent = date;
+
     if (taskList.length === 0) {
         taskListContainer.textContent = 'Нет задач на этот день.';
     } else {
@@ -355,104 +362,10 @@ function openTaskListModal(date) {
             taskListContainer.appendChild(taskDiv);
         });
     }
+
     document.getElementById('taskListModal').style.display = 'block';
 }
+
 function closeTaskListModal() {
     document.getElementById('taskListModal').style.display = 'none';
-}
-function initializePhoneMask() {
-    const phoneInputs = document.querySelectorAll('input[type="tel"]');
-    phoneInputs.forEach(input => {
-        input.addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-            let formattedValue = '';
-            if (value.length > 0) {
-                formattedValue = '+7(';
-                if (value.length > 1) {
-                    formattedValue += value.substring(1, 4);
-                } else {
-                    formattedValue += '';
-                }
-                if (value.length > 4) {
-                    formattedValue += ')' + value.substring(4, 7);
-                } else if (value.length > 1) {
-                    formattedValue += ')';
-                }
-                if (value.length > 7) {
-                    formattedValue += '-' + value.substring(7, 9);
-                } else if (value.length > 4) {
-                    formattedValue += '';
-                }
-                if (value.length > 9) {
-                    formattedValue += '-' + value.substring(9, 11);
-                } else if (value.length > 7) {
-                    formattedValue += '';
-                }
-            }
-            e.target.value = formattedValue;
-        });
-    });
-}
-function saveEditedTask() {
-    const taskId = document.getElementById('editTaskId').value;
-    if (!validateForm('editTaskForm')) {
-        return;
-    }
-    const name = document.getElementById('editName').value;
-    const phone = document.getElementById('editPhone').value;
-    const address = document.getElementById('editAddress').value;
-    const departureDate = document.getElementById('editDepartureDate').value;
-    const description = document.getElementById('editDescription').value;
-
-    Swal.fire({
-        title: 'Вы уверены?',
-        text: "Вы хотите сохранить изменения в этой задаче?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Cохранить',
-        cancelButtonText: 'Отмена'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`http://localhost:3000/tasks/${taskId}`, { 
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: name,
-                    phone: phone,
-                    address: address,
-                    departureDate: departureDate,
-                    description: description
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(updatedTask => { 
-                tasks = tasks.map(task => {
-                    if (task.id === taskId) {
-                        return {
-                            ...task,
-                            ...updatedTask  
-                        };
-                    }
-                    return task;
-                });
-                updateLocalStorage(); 
-                renderTasks(); 
-                closeTaskDetailsModal();
-                showSuccessAlert('Задача успешно обновлена!');
-            })
-            .catch(error => {
-                console.error('There was an error updating the task:', error);
-                showErrorAlert('Ошибка при обновлении задачи!');
-            });
-        }
-    });
 }
