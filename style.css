@@ -60,6 +60,7 @@ body {
 .header-left img {
     height: 40px;
     margin-right: 10px;
+    background-color: #2c555b;
 }
 .header-right {
     display: flex;
@@ -70,6 +71,9 @@ body {
     margin-left: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+.header-right #completed-count {
+    margin-left: 20px; 
 }
 .new-task-button {
     background-color: #0a7272; 
