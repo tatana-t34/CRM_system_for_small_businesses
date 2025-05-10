@@ -60,7 +60,6 @@ body {
 .header-left img {
     height: 40px;
     margin-right: 10px;
-    background-color: #2c555b;
 }
 .header-right {
     display: flex;
