@@ -102,7 +102,7 @@ function validateForm(formId) {
             const fieldId = field.id;
             const errorId = fieldId + '-error';
             const errorMessageElement = document.getElementById(errorId);
-             if (errorMessageElement) {
+            if (errorMessageElement) {
                 errorMessageElement.textContent = '';
             }
         }
@@ -167,7 +167,7 @@ function saveNewTask() {
     if (!validateForm('newTaskForm')) {
         return;
     }
-    const name = document.getElementById("name").value; 
+    const name = document.getElementById("name").value;
     const phone = document.getElementById("phone").value;
     const address = document.getElementById("address").value;
     const description = document.getElementById("description").value;
@@ -175,7 +175,7 @@ function saveNewTask() {
 
     const newTask = {
         id: "task-" + Date.now(),
-        name: name, 
+        name: name,
         phone: phone,
         address: address,
         description: description,
@@ -188,48 +188,6 @@ function saveNewTask() {
     closeNewTaskModal();
     showSuccessAlert('Новая задача успешно создана!');
     document.getElementById("newTaskForm").reset();
-}
-function saveEditedTask() {
-    const taskId = document.getElementById('editTaskId').value;
-    if (!validateForm('editTaskForm')) {
-        return;
-    }
-    const name = document.getElementById('editName').value; 
-    const phone = document.getElementById('editPhone').value;
-    const address = document.getElementById('editAddress').value;
-    const departureDate = document.getElementById('editDepartureDate').value;
-    const description = document.getElementById('editDescription').value;
-
-    Swal.fire({
-        title: 'Вы уверены?',
-        text: "Вы хотите сохранить изменения в этой задаче?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Cохранить',
-        cancelButtonText: 'Отмена'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            tasks = tasks.map(task => {
-                if (task.id === taskId) {
-                    return {
-                        ...task,
-                        name: name, 
-                        phone: phone,
-                        address: address,
-                        departureDate: departureDate,
-                        description: description
-                    };
-                }
-                return task;
-            });
-            updateLocalStorage();
-            renderTasks();
-            closeTaskDetailsModal();
-            showSuccessAlert('Задача успешно обновлена!');
-        }
-    });
 }
 function searchTasks() {
     const searchTerm = document.getElementById("search-input").value.toLowerCase();
@@ -311,7 +269,7 @@ function initializeCalendar() {
             }
             calendarBody.appendChild(row);
             if (date > daysInMonth) {
-                break; 
+                break;
             }
         }
     }
@@ -351,45 +309,6 @@ function closeTaskDetailsModal() {
     currentTaskDetailsId = null;
     resetValidation('editTaskForm');
 }
-function saveEditedTask() {
-    const taskId = document.getElementById('editTaskId').value;
-    if (!validateForm('editTaskForm')) {
-        return;
-    }
-    const phone = document.getElementById('editPhone').value;
-    const address = document.getElementById('editAddress').value;
-    const departureDate = document.getElementById('editDepartureDate').value;
-    const description = document.getElementById('editDescription').value;
-    Swal.fire({
-        title: 'Вы уверены?',
-        text: "Вы хотите сохранить изменения в этой задаче?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Cохранить',
-        cancelButtonText: 'Отмена'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            tasks = tasks.map(task => {
-                if (task.id === taskId) {
-                    return {
-                        ...task,
-                        phone: phone,
-                        address: address,
-                        departureDate: departureDate,
-                        description: description
-                    };
-                }
-                return task;
-            });
-            updateLocalStorage();
-            renderTasks();
-            closeTaskDetailsModal();
-            showSuccessAlert('Задача успешно обновлена!');
-        }
-    });
-}
 function deleteTaskFromDetails() {
     Swal.fire({
         title: 'Вы уверены?',
@@ -419,7 +338,7 @@ function openTaskListModal(date) {
     const taskList = tasks.filter(task => task.departureDate === date);
     const taskListContainer = document.getElementById('taskListContainer');
     const taskListDateDisplay = document.getElementById('taskListDate');
-    taskListContainer.innerHTML = ''; 
+    taskListContainer.innerHTML = '';
     taskListDateDisplay.textContent = date;
     if (taskList.length === 0) {
         taskListContainer.textContent = 'Нет задач на этот день.';
@@ -472,5 +391,46 @@ function initializePhoneMask() {
             }
             e.target.value = formattedValue;
         });
+    });
+}
+function saveEditedTask() {
+    const taskId = document.getElementById('editTaskId').value;
+    if (!validateForm('editTaskForm')) {
+        return;
+    }
+    const name = document.getElementById('editName').value;
+    const phone = document.getElementById('editPhone').value;
+    const address = document.getElementById('editAddress').value;
+    const departureDate = document.getElementById('editDepartureDate').value;
+    const description = document.getElementById('editDescription').value;
+    Swal.fire({
+        title: 'Вы уверены?',
+        text: "Вы хотите сохранить изменения в этой задаче?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Cохранить',
+        cancelButtonText: 'Отмена'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = tasks.map(task => {
+                if (task.id === taskId) {
+                    return {
+                        ...task,
+                        name: name,
+                        phone: phone,
+                        address: address,
+                        departureDate: departureDate,
+                        description: description
+                    };
+                }
+                return task;
+            });
+            updateLocalStorage();
+            renderTasks();
+            closeTaskDetailsModal();
+            showSuccessAlert('Задача успешно обновлена!');
+        }
     });
 }
