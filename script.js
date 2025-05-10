@@ -403,6 +403,7 @@ function saveEditedTask() {
     const address = document.getElementById('editAddress').value;
     const departureDate = document.getElementById('editDepartureDate').value;
     const description = document.getElementById('editDescription').value;
+
     Swal.fire({
         title: 'Вы уверены?',
         text: "Вы хотите сохранить изменения в этой задаче?",
@@ -414,23 +415,44 @@ function saveEditedTask() {
         cancelButtonText: 'Отмена'
     }).then((result) => {
         if (result.isConfirmed) {
-            tasks = tasks.map(task => {
-                if (task.id === taskId) {
-                    return {
-                        ...task,
-                        name: name,
-                        phone: phone,
-                        address: address,
-                        departureDate: departureDate,
-                        description: description
-                    };
+            fetch(`http://localhost:3000/tasks/${taskId}`, { 
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    departureDate: departureDate,
+                    description: description
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-                return task;
+                return response.json();
+            })
+            .then(updatedTask => { 
+                tasks = tasks.map(task => {
+                    if (task.id === taskId) {
+                        return {
+                            ...task,
+                            ...updatedTask  
+                        };
+                    }
+                    return task;
+                });
+                updateLocalStorage(); 
+                renderTasks(); 
+                closeTaskDetailsModal();
+                showSuccessAlert('Задача успешно обновлена!');
+            })
+            .catch(error => {
+                console.error('There was an error updating the task:', error);
+                showErrorAlert('Ошибка при обновлении задачи!');
             });
-            updateLocalStorage();
-            renderTasks();
-            closeTaskDetailsModal();
-            showSuccessAlert('Задача успешно обновлена!');
         }
     });
 }
