@@ -4,6 +4,7 @@ let currentTaskDetailsId = null;
 document.addEventListener("DOMContentLoaded", function () {
     renderTasks();
     updateCompletedCount();
+    initializePhoneMask();
 });
 function renderTasks() {
     const columns = ['todo', 'in-progress', 'done'];
@@ -26,7 +27,7 @@ function createTaskElement(task) {
     taskElement.className = "task";
     taskElement.draggable = true;
     taskElement.innerHTML = `
-        ${task.name}<br>
+        ${task.phone}<br>
         <small>${task.description}</small>
         `;
     taskElement.addEventListener("dragstart", drag);
@@ -106,8 +107,28 @@ function validateForm(formId) {
             }
         }
     });
-
+    const phoneField = document.getElementById('phone');
+    if (phoneField && !validatePhoneNumber(phoneField.value)) {
+        isValid = false;
+        phoneField.classList.add('invalid');
+        const errorId = 'phone-error';
+        const errorMessageElement = document.getElementById(errorId);
+        if (errorMessageElement) {
+            errorMessageElement.textContent = 'Введите номер телефона в формате +7(___)___-__-__';
+        }
+    } else if (phoneField) {
+        phoneField.classList.remove('invalid');
+        const errorId = 'phone-error';
+        const errorMessageElement = document.getElementById(errorId);
+        if (errorMessageElement) {
+            errorMessageElement.textContent = '';
+        }
+    }
     return isValid;
+}
+function validatePhoneNumber(phoneNumber) {
+    const phoneRegex = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/;
+    return phoneRegex.test(phoneNumber);
 }
 function showSuccessAlert(message) {
     Swal.fire({
@@ -129,14 +150,12 @@ function saveNewTask() {
     if (!validateForm('newTaskForm')) {
         return;
     }
-    const name = document.getElementById("name").value;
     const phone = document.getElementById("phone").value;
     const address = document.getElementById("address").value;
     const description = document.getElementById("description").value;
     const departureDate = document.getElementById("departureDate").value;
     const newTask = {
         id: "task-" + Date.now(),
-        name: name,
         phone: phone,
         address: address,
         description: description,
@@ -173,7 +192,6 @@ function openTab(tabName) {
     }
     document.getElementById(tabName).classList.add("active");
     event.currentTarget.classList.add("active");
-
     if (tabName === 'calendar') {
         initializeCalendar();
     }
@@ -217,7 +235,6 @@ function initializeCalendar() {
             for (let j = 0; j < 7; j++) {
                 const cell = document.createElement('td');
                 if (i === 0 && j < startingDay) {
-                    // Empty cells before the first day of the month
                 } else if (date <= daysInMonth) {
                     cell.textContent = date;
                     const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
@@ -226,14 +243,13 @@ function initializeCalendar() {
                         cell.classList.add('has-event');
                         cell.addEventListener('click', () => openTaskListModal(fullDate));
                     }
-
                     date++;
                 }
                 row.appendChild(cell);
             }
             calendarBody.appendChild(row);
             if (date > daysInMonth) {
-                break; // Stop generating rows if all days are filled
+                break; 
             }
         }
     }
@@ -257,11 +273,9 @@ function initializeCalendar() {
     nextMonthButton.addEventListener('click', () => changeMonth('next'));
     generateCalendar(currentMonth, currentYear);
 }
-// Task Details Modal Functions
 function openTaskDetailsModal(task) {
     currentTaskDetailsId = task.id;
     document.getElementById('editTaskId').value = task.id;
-    document.getElementById('editName').value = task.name;
     document.getElementById('editPhone').value = task.phone || '';
     document.getElementById('editAddress').value = task.address || '';
     document.getElementById('editDepartureDate').value = task.departureDate || '';
@@ -275,10 +289,9 @@ function closeTaskDetailsModal() {
 }
 function saveEditedTask() {
     const taskId = document.getElementById('editTaskId').value;
-     if (!validateForm('editTaskForm')) {
+    if (!validateForm('editTaskForm')) {
         return;
     }
-    const name = document.getElementById('editName').value;
     const phone = document.getElementById('editPhone').value;
     const address = document.getElementById('editAddress').value;
     const departureDate = document.getElementById('editDepartureDate').value;
@@ -290,7 +303,7 @@ function saveEditedTask() {
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Да, сохранить!',
+        confirmButtonText: 'Cохранить',
         cancelButtonText: 'Отмена'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -298,7 +311,6 @@ function saveEditedTask() {
                 if (task.id === taskId) {
                     return {
                         ...task,
-                        name: name,
                         phone: phone,
                         address: address,
                         departureDate: departureDate,
@@ -322,7 +334,7 @@ function deleteTaskFromDetails() {
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Да, удалить!',
+        confirmButtonText: 'Удалить',
         cancelButtonText: 'Отмена'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -343,10 +355,8 @@ function openTaskListModal(date) {
     const taskList = tasks.filter(task => task.departureDate === date);
     const taskListContainer = document.getElementById('taskListContainer');
     const taskListDateDisplay = document.getElementById('taskListDate');
-
-    taskListContainer.innerHTML = ''; // Clear previous list
+    taskListContainer.innerHTML = ''; 
     taskListDateDisplay.textContent = date;
-
     if (taskList.length === 0) {
         taskListContainer.textContent = 'Нет задач на этот день.';
     } else {
@@ -354,18 +364,48 @@ function openTaskListModal(date) {
             const taskDiv = document.createElement('div');
             taskDiv.classList.add('task-list-item');
             taskDiv.innerHTML = `
-                <b>${task.name}</b><br>
-                Телефон: ${task.phone || 'Не указан'}<br>
+                <b>${task.phone}</b><br>
                 Адрес: ${task.address || 'Не указан'}<br>
                 Описание: ${task.description}
             `;
             taskListContainer.appendChild(taskDiv);
         });
     }
-
     document.getElementById('taskListModal').style.display = 'block';
 }
-
 function closeTaskListModal() {
     document.getElementById('taskListModal').style.display = 'none';
+}
+function initializePhoneMask() {
+    const phoneInputs = document.querySelectorAll('input[type="tel"]');
+    phoneInputs.forEach(input => {
+        input.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            let formattedValue = '';
+            if (value.length > 0) {
+                formattedValue = '+7(';
+                if (value.length > 1) {
+                    formattedValue += value.substring(1, 4);
+                } else {
+                    formattedValue += '';
+                }
+                if (value.length > 4) {
+                    formattedValue += ')' + value.substring(4, 7);
+                } else if (value.length > 1) {
+                    formattedValue += ')';
+                }
+                if (value.length > 7) {
+                    formattedValue += '-' + value.substring(7, 9);
+                } else if (value.length > 4) {
+                    formattedValue += '';
+                }
+                if (value.length > 9) {
+                    formattedValue += '-' + value.substring(9, 11);
+                } else if (value.length > 7) {
+                    formattedValue += '';
+                }
+            }
+            e.target.value = formattedValue;
+        });
+    });
 }
