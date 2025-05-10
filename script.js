@@ -365,3 +365,38 @@ function openTaskListModal(date) {
 function closeTaskListModal() {
     document.getElementById('taskListModal').style.display = 'none';
 }
+function initializePhoneMask() {
+    const phoneInputs = document.querySelectorAll('input[type="tel"]');
+    phoneInputs.forEach(inputElement => {
+        inputElement.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, ''); 
+            let formattedValue = '';
+
+            if (value.length > 0) {
+                formattedValue = '+7('; 
+                if (value.length > 1) {
+                    formattedValue += value.substring(1, 4); 
+                } else {
+                    formattedValue += '';
+                }
+                if (value.length > 4) {
+                    formattedValue += ')' + value.substring(4, 7); 
+                } else if (value.length > 1) {
+                    formattedValue += ')'; 
+                }
+                if (value.length > 7) {
+                    formattedValue += '-' + value.substring(7, 9); 
+                } else if (value.length > 4) {
+                    formattedValue += ''; 
+                }
+                if (value.length > 9) {
+                    formattedValue += '-' + value.substring(9, 11); 
+                } else if (value.length > 7) {
+                    formattedValue += ''; 
+                }
+            }
+
+            e.target.value = formattedValue; 
+        });
+    });
+}
