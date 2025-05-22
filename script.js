@@ -1,3 +1,121 @@
+const API_URL = 'http://localhost:3000';
+// Инициализация при загрузке
+document.addEventListener("DOMContentLoaded", async function () {
+    await fetchTasks();
+    initializePhoneMask();
+});
+// Получение задач с сервера
+async function fetchTasks() {
+    try {
+        const response = await fetch(`${API_URL}/tasks`);
+        if (!response.ok) throw new Error('Ошибка загрузки задач');
+        tasks = await response.json();
+        renderTasks();
+        updateCompletedCount();
+    } catch (error) {
+        console.error('Error:', error);
+        showErrorAlert('Не удалось загрузить задачи');
+    }
+}
+// Сохранение новой задачи
+async function saveNewTask() {
+    if (!validateForm('newTaskForm') || !validatePhone()) {
+        return;
+    }
+
+    const phone = document.getElementById("phone").value;
+    if (!isValidPhone(phone)) {
+        showErrorAlert('Номер телефона должен быть в формате +7(XXX)XXX-XX-XX');
+        return;
+    }
+
+    const newTask = {
+        name: document.getElementById("name").value,
+        phone: phone,
+        address: document.getElementById("address").value,
+        description: document.getElementById("description").value,
+        departureDate: document.getElementById("departureDate").value,
+        status: 'todo'
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/tasks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newTask)
+        });
+
+        if (!response.ok) throw new Error('Ошибка сохранения задачи');
+        
+        await fetchTasks();
+        closeNewTaskModal();
+        showSuccessAlert('Новая задача успешно создана!');
+        document.getElementById("newTaskForm").reset();
+    } catch (error) {
+        console.error('Error:', error);
+        showErrorAlert('Не удалось сохранить задачу');
+    }
+}
+
+// Валидация телефона
+function isValidPhone(phone) {
+    const regex = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/;
+    return regex.test(phone);
+}
+
+function validatePhone() {
+    const phoneInput = document.getElementById("phone");
+    const phone = phoneInput.value;
+    const isValid = isValidPhone(phone);
+    
+    if (!isValid) {
+        document.getElementById("phone-error").textContent = 'Введите телефон в формате +7(XXX)XXX-XX-XX';
+        phoneInput.classList.add('invalid');
+        return false;
+    }
+    
+    document.getElementById("phone-error").textContent = '';
+    phoneInput.classList.remove('invalid');
+    return true;
+}
+
+async function updateTaskStatus(taskId, newStatus) {
+    try {
+        const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) throw new Error('Ошибка обновления статуса');
+        
+        await fetchTasks();
+    } catch (error) {
+        console.error('Error:', error);
+        showErrorAlert('Не удалось обновить статус задачи');
+    }
+}
+
+async function deleteTask(taskId) {
+    try {
+        const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Ошибка удаления задачи');
+        
+        await fetchTasks();
+    } catch (error) {
+        console.error('Error:', error);
+        showErrorAlert('Не удалось удалить задачу');
+    }
+}
+
+
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let completedTaskCount = 0;
 let currentTaskDetailsId = null;
@@ -48,19 +166,7 @@ function drop(event, columnId) {
         updateTaskStatus(data, taskStatus);
     }
 }
-function updateTaskStatus(taskId, newStatus) {
-    tasks = tasks.map(task => {
-        if (task.id === taskId) {
-            return {
-                ...task,
-                status: newStatus
-            };
-        }
-        return task;
-    });
-    updateLocalStorage();
-    renderTasks();
-}
+
 function updateLocalStorage() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
@@ -330,11 +436,7 @@ function deleteTaskFromDetails() {
         }
     });
 }
-function deleteTask(taskId) {
-    tasks = tasks.filter(task => task.id !== taskId);
-    updateLocalStorage();
-    renderTasks();
-}
+
 function openTaskListModal(date) {
     const taskList = tasks.filter(task => task.departureDate === date);
     const taskListContainer = document.getElementById('taskListContainer');
